@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="main-content">
+    <div class="section__content section__content--p30">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header text-center bg-danger text-white">
+                            <i class="fa fa-warning"></i> Tasdiqlash
+                        </div>
+                        <div class="card-body text-center p-5">
+                            <h4>Haqiqatan ham "<strong>{{ obj }}</strong>" elementini o'chirmoqchimisiz?</h4>
+                            <p class="text-muted mt-3">Bu amalni orqaga qaytarib bo'lmaydi.</p>
+                            <form method="post" class="mt-4">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger px-4">HA, O'CHIRISH</button>
+                                <a href="{{ request.META.HTTP_REFERER|default:'/' }}"
+                                    class="btn btn-secondary px-4">BEKOR QILISH</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

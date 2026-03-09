@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dezinfektor: Ish Maydoni va Xarajat Kalkulyatori</title>
+    <style>
+        :root {
+            --bg-deep: #09090b;
+            --bg-grad-1: #18181b;
+            --bg-grad-2: #0f766e;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 30px 60px -10px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            --text-main: #f8fafc;
+            --text-muted: #a1a1aa;
+            --accent: #14b8a6;
+            --accent-hover: #0d9488;
+            --danger: #ef4444;
+            --success: #10b981;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2));
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .calc-wrapper {
+            width: 100%;
+            max-width: 900px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: var(--glass-shadow);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #5eead4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hint {
+            color: var(--accent);
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 0.75rem;
+        }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            width: 100%;
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            cursor: pointer;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2), inset 0 2px 5px rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 20px -5px rgba(20, 184, 166, 0.5);
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(20, 184, 166, 0.6);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Results Panel */
+        .results-section {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .result-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .result-value.total {
+            color: var(--accent);
+            font-size: 2.25rem;
+        }
+
+        .domain-info {
+            margin-top: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--glass-border);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .domain-info span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--danger);
+            color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            font-weight: 500;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .calc-wrapper { grid-template-columns: 1fr; gap: 2rem; padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calc-wrapper">
+        <div class="header">
+            <h1>Sanitariya-Epidemiologiya Kalkulyatori</h1>
+            <p class="subtitle">Obyekt maydoni bo'yicha sarf-xarajat, dori miqdori va yillik byudjetni avtomatik hisoblash vositasi.</p>
+        </div>
+
+        <form id="calcForm" class="form-section">
+            <div class="form-group">
+                <label for="serviceType">Xizmat Turi</label>
+                <select id="serviceType" required>
+                    <option value="" disabled selected>Xizmatni tanlang...</option>
+                    <option value="dezinfeksiya">Profilaktik Dezinfeksiya</option>
+                    <option value="dezinseksiya">Dezinseksiya (Umumiy)</option>
+                    <option value="dezinseksiya_qora">Dezinseksiya (Qora pashshaga qarshi)</option>
+                    <option value="dezinseksiya_tuxum">Dezinseksiya (Pashsha tuxumiga/Larvitsid)</option>
+                    <option value="deratizatsiya">Deratizatsiya (Kemiruvchilar)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="area">Obyekt Maydoni (m²) <span class="hint" id="areaHint">Hajm bo'lsa m³ kiritmang</span></label>
+                <input type="number" id="area" placeholder="Masalan: 1500" min="1" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="price">1 m² uchun narx (So'm)</label>
+                <input type="number" id="price" placeholder="Masalan: 550" min="1" step="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="frequency">Yillik Ishlov Soni <span class="hint" id="freqHint">Standart: 12 marta</span></label>
+                <input type="number" id="frequency" placeholder="Yiliga necha marta?" min="1" max="365" required>
+            </div>
+
+            <button type="submit" id="calculateBtn">Hisoblash</button>
+        </form>
+
+        <div class="results-section">
+            <div class="result-card">
+                <span class="result-label">1 Martalik Xizmat Qiymati</span>
+                <span class="result-value" id="resSingle">0 UZS</span>
+            </div>
+
+            <div class="result-card">
+                <span class="result-label">1 Yillik Shartnoma Qiymati</span>
+                <span class="result-value total" id="resAnnual">0 UZS</span>
+            </div>
+
+            <div class="domain-info" id="domainInfo">
+                * Hisob-kitob qilish uchun chapdagi ma'lumotlarni to'ldiring. Bosh vrach uchun sarf-me'yorlari ham shu yerda ko'rinadi.
+            </div>
+        </div>
+    </div>
+
+    <div id="toastNotif" class="toast">Xatolik yuz berdi!</div>
+
+    <script>
+        /**
+         * Sanitariya me'yorlari bo'yicha domenga xos ma'lumotlar bazasi (Knowledge base)
+         * multiplier: narxga yoki ishlov murakkabligiga qo'shiladigan koeffitsiyent
+         * defaultFreq: Yillik tavsiya etilgan chastota (masalan, qora pashsha mavsumiy)
+         * dosage: 1 m2 uchun sarflanadigan ishchi eritma (ml) yoki xo'rak (gramm)
+         */
+        const SANITARY_NORMS = {
+            'dezinfeksiya': {
+                freq: 12, multiplier: 1.0, dosage: '100 - 150 ml', chemical: 'Xlorli yoxud QATS asosidagi dezinfektant'
+            },
+            'dezinseksiya': {
+                freq: 12, multiplier: 1.0, dosage: '50 - 100 ml', chemical: 'Umumiy Insektitsid (Sipermetrin va h.k.)'
+            },
+            'dezinseksiya_qora': {
+                freq: 6, multiplier: 1.5, dosage: '150 - 200 ml', chemical: 'Maxsus fumiqantlar, o\'tkir repellantlar (Mavsumiy 6 oy)'
+            },
+            'dezinseksiya_tuxum': {
+                freq: 12, multiplier: 1.2, dosage: '200 ml (tuproq/namlikka)', chemical: 'Larvitsid preparatlar (Lichinkaga qarshi)'
+            },
+            'deratizatsiya': {
+                freq: 12, multiplier: 1.0, dosage: '10 - 20 gramm xo\'rak', chemical: 'Antikoagulyant zaharli xo\'raklar'
+            }
+        };
+
+        class DisinfectionCalculator {
+            constructor() {
+                this.elements = {
+                    form: document.getElementById('calcForm'),
+                    serviceType: document.getElementById('serviceType'),
+                    area: document.getElementById('area'),
+                    price: document.getElementById('price'),
+                    frequency: document.getElementById('frequency'),
+                    freqHint: document.getElementById('freqHint'),
+                    resSingle: document.getElementById('resSingle'),
+                    resAnnual: document.getElementById('resAnnual'),
+                    domainInfo: document.getElementById('domainInfo'),
+                    toast: document.getElementById('toastNotif'),
+                    btn: document.getElementById('calculateBtn')
+                };
+
+                this.formatter = new Intl.NumberFormat('uz-UZ');
+                this.initEvents();
+            }
+
+            initEvents() {
+                this.elements.serviceType.addEventListener('change', (e) => this.handleServiceChange(e));
+                this.elements.form.addEventListener('submit', (e) => this.handleCalculate(e));
+
+                // Real-time calculation if fields are filled
+                [this.elements.area, this.elements.price, this.elements.frequency].forEach(input => {
+                    input.addEventListener('input', () => {
+                        if(this.elements.form.checkValidity()) this.performCalculation();
+                    });
+                });
+            }
+
+            handleServiceChange(event) {
+                try {
+                    const type = event.target.value;
+                    const norm = SANITARY_NORMS[type];
+                    if (!norm) return;
+
+                    // Update UI defaults based on domain knowledge
+                    this.elements.frequency.value = norm.freq;
+                    this.elements.freqHint.textContent = `Standart: ${norm.freq} marta/yil`;
+
+                    // Trigger calc immediately if other fields exist
+                    if(this.elements.area.value && this.elements.price.value) {
+                        this.performCalculation();
+                    }
+                } catch (error) {
+                    this.showError('Xizmat turini yuklashda xatolik yuz berdi.');
+                }
+            }
+
+            handleCalculate(event) {
+                event.preventDefault();
+                this.performCalculation();
+            }
+
+            performCalculation() {
+                try {
+                    const type = this.elements.serviceType.value;
+                    const area = parseFloat(this.elements.area.value);
+                    const basePrice = parseFloat(this.elements.price.value);
+                    const frequency = parseInt(this.elements.frequency.value);
+
+                    if (!type || isNaN(area) || isNaN(basePrice) || isNaN(frequency)) {
+                        throw new Error("Barcha maydonlarni to'g'ri to'ldiring!");
+                    }
+
+                    if (area <= 0 || basePrice <= 0 || frequency <= 0) {
+                        throw new Error("Qiymatlar 0 dan katta bo'lishi shart!");
+                    }
+
+                    const norm = SANITARY_NORMS[type];
+
+                    // Domain specific math: Calculate single and annual cost
+                    // Adjusted price takes the biological complexity multiplier into account
+                    const adjustedPrice = basePrice * norm.multiplier;
+                    const singleCost = area * adjustedPrice;
+                    const annualCost = singleCost * frequency;
+
+                    this.animateValue(this.elements.resSingle, singleCost);
+                    this.animateValue(this.elements.resAnnual, annualCost);
+                    this.updateDomainInfo(norm, area);
+
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            updateDomainInfo(norm, area) {
+                let totalChemical = '';
+                if (norm.dosage.includes('ml')) {
+                    // Extract numeric part for volume calc
+                    const mlPerSqM = parseInt(norm.dosage);
+                    const totalLiters = (area * mlPerSqM) / 1000;
+                    totalChemical = `1 martalik ishlov uchun o'rtacha ishchi eritma: <span>~${totalLiters.toFixed(1)} Litr</span>`;
+                } else if (norm.dosage.includes('gramm')) {
+                    const gPerSqM = parseInt(norm.dosage);
+                    const totalKg = (area * gPerSqM) / 1000;
+                    totalChemical = `1 martalik ishlov uchun tavsiya etilgan xo'rak: <span>~${totalKg.toFixed(1)} Kg</span>`;
+                }
+
+                this.elements.domainInfo.innerHTML = `
+                    Ta'sir etuvchi modda tavsiyasi: <span>${norm.chemical}</span><br>
+                    Sarflov normasi: <span>1 m² uchun ${norm.dosage}</span><br>
+                    ${totalChemical}<br><br>
+                    <i style="color: var(--accent); font-size: 0.8rem;">* Moliya bo'limi diqqatiga: Ushbu hisob-kitob O'zR SanPiN me'yorlari asosidagi o'rtacha xarajatlarni ko'rsatadi. Murakkablik koeffitsiyenti (${norm.multiplier}x) inobatga olindi.</i>
+                `;
+            }
+
+            animateValue(element, targetValue) {
+                // Remove existing animation classes to re-trigger
+                element.style.transform = 'scale(0.95)';
+                element.style.opacity = '0.5';
+
+                requestAnimationFrame(() => {
+                    element.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    element.style.transform = 'scale(1)';
+                    element.style.opacity = '1';
+                    element.textContent = `${this.formatter.format(targetValue)} so'm`;
+                });
+            }
+
+            showError(msg) {
+                this.elements.toast.textContent = msg;
+                this.elements.toast.classList.add('show');
+                setTimeout(() => this.elements.toast.classList.remove('show'), 3500);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new DisinfectionCalculator();
+        });
+    </script>
+</body>
+</html>
